@@ -1,6 +1,6 @@
-// I2C accelerometer/magnetometer app
+// I2C accelerometer app
 //
-// Read from I2C accelerometer/magnetometer on the Microbit
+// Read from I2C accelerometer on the Microbit
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -17,17 +17,13 @@
 
 // Global variables
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 1, 0);
-APP_TIMER_DEF(temp_timer);
+APP_TIMER_DEF(acc_timer);
 
-static void temp_timer_callback(void* _unused) {
-  float temp = lsm303agr_read_temperature();
+static void acc_timer_callback(void* _unused) {
   lsm303agr_measurement_t acc = lsm303agr_read_accelerometer();
-  lsm303agr_measurement_t mag = lsm303agr_read_magnetometer();
   float tilt = lsm303agr_tilt_angle(acc);
 
-  printf("Temperature: %.2f C\n", temp);
   printf("Acceleration (g): x=%.3f y=%.3f z=%.3f\n", acc.x_axis, acc.y_axis, acc.z_axis);
-  printf("Magnetic field (uT): x=%.2f y=%.2f z=%.2f\n", mag.x_axis, mag.y_axis, mag.z_axis);
   printf("Tilt angle (phi): %.2f deg\n\n", tilt);
 }
 
@@ -40,19 +36,19 @@ int main(void) {
   // These are NOT the correct pins for external I2C communication.
   // If you are using QWIIC or other external I2C devices, the are
   // connected to EDGE_P19 (a.k.a. I2C_QWIIC_SCL) and EDGE_P20 (a.k.a. I2C_QWIIC_SDA)
-  i2c_config.scl = I2C_INTERNAL_SCL;
-  i2c_config.sda = I2C_INTERNAL_SDA;
+  i2c_config.scl = EDGE_P19;
+  i2c_config.sda = EDGE_P20;
   i2c_config.frequency = NRF_DRV_TWI_FREQ_100K;
   i2c_config.interrupt_priority = 0;
   nrf_twi_mngr_init(&twi_mngr_instance, &i2c_config);
 
-  // Initialize the LSM303AGR accelerometer/magnetometer sensor
+  // Initialize the LSM303AGR accelerometer sensor
   lsm303agr_init(&twi_mngr_instance);
 
   //TODO: implement me!
   app_timer_init();
-  app_timer_create(&temp_timer, APP_TIMER_MODE_REPEATED, temp_timer_callback);
-  app_timer_start(temp_timer, 32768, NULL);
+  app_timer_create(&acc_timer, APP_TIMER_MODE_REPEATED, acc_timer_callback);
+  app_timer_start(acc_timer, 32768, NULL);
 
   // Loop forever
   while (1) {
@@ -60,6 +56,3 @@ int main(void) {
     nrf_delay_ms(1000);
   }
 }
-
-
-

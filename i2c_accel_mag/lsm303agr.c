@@ -1,7 +1,7 @@
 // LSM303AGR driver for Microbit_v2
 //
 // Initializes sensor and communicates over I2C
-// Capable of reading temperature, acceleration, and magnetic field strength
+// Reads acceleration and computes tilt angle
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -14,34 +14,17 @@
 // ---Configuration values---
 
 // Accelerometer register settings
-#define ACC_REBOOT_VAL          0x80  // CTRL_REG5_A: reboot memory content
-#define ACC_BDU_VAL             0x80  // CTRL_REG4_A: block data update
-#define ACC_CONFIG_VAL          0x57  // CTRL_REG1_A: 100Hz normal mode x/y/z enabled
-
-// Magnetometer register settings
-#define MAG_REBOOT_VAL          0x40  // CFG_REG_A_M: reboot memory content
-#define MAG_BDU_VAL             0x10  // CFG_REG_C_M: block data update
-#define MAG_CONFIG_VAL          0x0C  // CFG_REG_A_M: 100Hz continuous mode
-
-// Temperature sensor settings
-#define TEMP_ENABLE_VAL         0xC0  // TEMP_CFG_REG_A: enable temperature sensor
+#define ACC_REBOOT_VAL          0x80  // PWR_MGMT_1: device reset
+#define ACC_BDU_VAL             0x00  // PWR_MGMT_1: wake up (clear SLEEP)
+#define ACC_CONFIG_VAL          0x00  // ACCEL_CONFIG: +/-2g
 
 // Delays (ms)
 #define REBOOT_DELAY_MS         100
-#define TEMP_READY_DELAY_MS     100
-
-// Temperature conversion
-#define TEMP_SCALE              (1.0 / 256.0)  // degrees C per LSB
-#define TEMP_OFFSET_C           25.0           // degrees C at raw value 0
 
 // Accelerometer conversion
-#define ACC_DATA_SHIFT          6      // 10-bit  data
-#define ACC_SENSITIVITY_MG      3.9    // mg per LSB
+#define ACC_DATA_SHIFT          0      // full 16-bit data
+#define ACC_SENSITIVITY_MG      (1000.0 / 16384.0)  // mg per LSB at +/-2g
 #define MG_PER_G                1000.0
-
-// Magnetometer conversion
-#define MAG_SENSITIVITY_MGAUSS  1.5    // mgauss per LSB
-#define MGAUSS_PER_UT           10.0
 
 // Pointer to an initialized I2C instance to use for transactions
 static const nrf_twi_mngr_t* i2c_manager = NULL;
@@ -101,7 +84,7 @@ static void i2c_reg_write(uint8_t i2c_addr, uint8_t reg_addr, uint8_t data) {
   }
 }
 
-// Initialize and configure the LSM303AGR accelerometer/magnetometer
+// Initialize and configure the LSM303AGR accelerometer
 //
 // i2c - pointer to already initialized and enabled twim instance
 void lsm303agr_init(const nrf_twi_mngr_t* i2c) {
@@ -127,47 +110,8 @@ void lsm303agr_init(const nrf_twi_mngr_t* i2c) {
   // i2c_addr - address of the device to read from
   // reg_addr - address of the register within the device to read
   uint8_t read_buf = i2c_reg_read(LSM303AGR_ACC_ADDRESS, WHO_AM_I_A);
-  printf("acc: %x\n", read_buf); //51 in decimal
+  printf("acc: %x\n", read_buf); // expect 68 (MPU-6050)
 
-
-  // ---Initialize Magnetometer---
-
-  // Reboot magnetometer
-  i2c_reg_write(LSM303AGR_MAG_ADDRESS, CFG_REG_A_M, MAG_REBOOT_VAL);
-  nrf_delay_ms(REBOOT_DELAY_MS); // needs delay to wait for reboot
-
-  // Enable Block Data Update
-  // Only updates sensor data when both halves of the data has been read
-  i2c_reg_write(LSM303AGR_MAG_ADDRESS, CFG_REG_C_M, MAG_BDU_VAL);
-
-  // Configure magnetometer at 100Hz, continuous mode
-  i2c_reg_write(LSM303AGR_MAG_ADDRESS, CFG_REG_A_M, MAG_CONFIG_VAL);
-
-  // Read WHO AM I register
-  //TODO: read the Magnetometer WHO AM I register and check the result
-  uint8_t read_mag = i2c_reg_read(LSM303AGR_MAG_ADDRESS, WHO_AM_I_M);
-  printf("mag: %x\n", read_mag); //64 in decimal 
-
-  // ---Initialize Temperature---
-
-  // Enable temperature sensor
-  i2c_reg_write(LSM303AGR_ACC_ADDRESS, TEMP_CFG_REG_A, TEMP_ENABLE_VAL);
-  nrf_delay_ms(TEMP_READY_DELAY_MS); // needs delay to be ready
-}
-
-// Read the internal temperature sensor
-//
-// Return measurement as floating point value in degrees C
-float lsm303agr_read_temperature(void) {
-  //TODO: implement me
-  uint8_t read_temp_la = i2c_reg_read(LSM303AGR_ACC_ADDRESS, OUT_TEMP_L_A);
-  uint8_t read_temp_ha = i2c_reg_read(LSM303AGR_ACC_ADDRESS, OUT_TEMP_H_A);
-
-  int16_t combined_read = ((int16_t)read_temp_ha << 8) | read_temp_la;
-
-  float temp = ((float)combined_read * TEMP_SCALE) + TEMP_OFFSET_C; //celsius
-
-  return temp;
 }
 
 lsm303agr_measurement_t lsm303agr_read_accelerometer(void) {
@@ -203,45 +147,9 @@ lsm303agr_measurement_t lsm303agr_read_accelerometer(void) {
   return measurement;
 }
 
-
-lsm303agr_measurement_t lsm303agr_read_magnetometer(void) {
-  //TODO: implement me
-
-  uint8_t x_a = i2c_reg_read(LSM303AGR_MAG_ADDRESS, OUTX_L_REG_M);
-  uint8_t x_b = i2c_reg_read(LSM303AGR_MAG_ADDRESS, OUTX_H_REG_M);
-
-  int16_t combined_x = (((int16_t)x_b << 8) | x_a);
-
-  uint8_t y_a = i2c_reg_read(LSM303AGR_MAG_ADDRESS, OUTY_L_REG_M);
-  uint8_t y_b = i2c_reg_read(LSM303AGR_MAG_ADDRESS, OUTY_H_REG_M);
-
-  int16_t combined_y = (((int16_t)y_b << 8) | y_a);
-
-  uint8_t z_a = i2c_reg_read(LSM303AGR_MAG_ADDRESS, OUTZ_L_REG_M);
-  uint8_t z_b = i2c_reg_read(LSM303AGR_MAG_ADDRESS, OUTZ_H_REG_M);
-
-  int16_t combined_z = (((int16_t)z_b << 8) | z_a);
-
-
-  lsm303agr_measurement_t measurement = {0};
-
-  float x_mgauss = combined_x * MAG_SENSITIVITY_MGAUSS;
-  float y_mgauss = combined_y * MAG_SENSITIVITY_MGAUSS;
-  float z_mgauss = combined_z * MAG_SENSITIVITY_MGAUSS;
-
-  measurement.x_axis = x_mgauss / MGAUSS_PER_UT; //divided by 10 because we want uT
-  measurement.y_axis = y_mgauss / MGAUSS_PER_UT;
-  measurement.z_axis = z_mgauss / MGAUSS_PER_UT;
-
-  return measurement;
-}
-
-
 // Compute tilt angle (phi) from the Z axis using accelerometer data
-// AN-1057 equation 13: phi = atan( sqrt(Ax^2 + Ay^2) / Az )
-//
 // Return angle in degrees
 float lsm303agr_tilt_angle(lsm303agr_measurement_t acc) {
-  float phi_rad = atan(sqrt(acc.x_axis * acc.x_axis + acc.y_axis * acc.y_axis) / acc.z_axis);
+  float phi_rad = atan2(acc.x_axis, sqrt(acc.x_axis*acc.x_axis + acc.y_axis*acc.y_axis));
   return phi_rad * 180.0 / M_PI;
 }
