@@ -68,3 +68,7 @@ lsm303agr_measurement_t lsm303agr_read_accelerometer(void);
 //
 // Return angle in degrees
 float lsm303agr_tilt_angle(lsm303agr_measurement_t acc);
+
+// Signed tilt angles in degrees (range -90 to +90)
+float lsm303agr_pitch_angle(lsm303agr_measurement_t acc);
+float lsm303agr_roll_angle(lsm303agr_measurement_t acc);

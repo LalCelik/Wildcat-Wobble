@@ -26,6 +26,20 @@
 #define ACC_SENSITIVITY_MG      (1000.0 / 16384.0)  // mg per LSB at +/-2g
 #define MG_PER_G                1000.0
 
+// // Gyroscope register settings
+// #define ACC_REBOOT_VAL          0x80  // PWR_MGMT_1: device reset
+// #define ACC_BDU_VAL             0x00  // PWR_MGMT_1: wake up (clear SLEEP)
+// #define ACC_CONFIG_VAL          0x00  // ACCEL_CONFIG: +/-2g
+
+// // Delays (ms)
+// #define REBOOT_DELAY_MS         100
+
+// // Accelerometer conversion
+// #define ACC_DATA_SHIFT          0      // full 16-bit data
+// #define ACC_SENSITIVITY_MG      (1000.0 / 16384.0)  // mg per LSB at +/-2g
+// #define MG_PER_G                1000.0
+
+
 // Pointer to an initialized I2C instance to use for transactions
 static const nrf_twi_mngr_t* i2c_manager = NULL;
 
@@ -150,6 +164,16 @@ lsm303agr_measurement_t lsm303agr_read_accelerometer(void) {
 // Compute tilt angle (phi) from the Z axis using accelerometer data
 // Return angle in degrees
 float lsm303agr_tilt_angle(lsm303agr_measurement_t acc) {
-  float phi_rad = atan2(acc.x_axis, sqrt(acc.x_axis*acc.x_axis + acc.y_axis*acc.y_axis));
+  float phi_rad = atan2f(sqrtf(acc.x_axis*acc.x_axis + acc.y_axis*acc.y_axis), acc.z_axis);
   return phi_rad * 180.0 / M_PI;
+}
+
+// Pitch: rotation about Y (follows x axis)
+float lsm303agr_pitch_angle(lsm303agr_measurement_t acc) {
+  return atan2f(acc.x_axis, sqrtf(acc.y_axis*acc.y_axis + acc.z_axis*acc.z_axis)) * 180.0f / M_PI;
+}
+
+// Roll: rotation about X (follows y axis)
+float lsm303agr_roll_angle(lsm303agr_measurement_t acc) {
+  return atan2f(acc.y_axis, sqrtf(acc.x_axis*acc.x_axis + acc.z_axis*acc.z_axis)) * 180.0f / M_PI;
 }

@@ -24,7 +24,8 @@ static void acc_timer_callback(void* _unused) {
   float tilt = lsm303agr_tilt_angle(acc);
 
   printf("Acceleration (g): x=%.3f y=%.3f z=%.3f\n", acc.x_axis, acc.y_axis, acc.z_axis);
-  printf("Tilt angle (phi): %.2f deg\n\n", tilt);
+  printf("Tilt angle (phi): %.2f deg\n", tilt);
+  printf("Pitch: %.2f deg  Roll: %.2f deg\n\n", lsm303agr_pitch_angle(acc), lsm303agr_roll_angle(acc));
 }
 
 int main(void) {
