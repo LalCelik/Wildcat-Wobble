@@ -120,7 +120,10 @@
         // what percent of the duty cycle the u represents
         // what percentage of duty cycle should this value be high
         float ratio = fabsf(u) / u_max;
-        float duty_cycle = fminf(ratio, 1.0f); // can't be less than 1
+
+        //1.0 is full motor voltage
+        //start with less just in case
+        float duty_cycle = fminf(ratio, 0.4f); // can't be less than 1
 
         // convert duty cycle into computer comp value
         // high 60% of the time -> 60% of PWM counter ticks
