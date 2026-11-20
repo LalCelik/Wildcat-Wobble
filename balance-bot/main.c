@@ -13,7 +13,7 @@
 #include "microbit_v2.h"
 #include "imu.h"
 #include "app_timer.h"
-
+#include "pid.c"
 
 // Global variables
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 1, 0);
@@ -28,20 +28,20 @@ static void acc_timer_callback(void* _unused) {
   printf("Tilt angle (phi): %.2f deg\n", tilt);
   printf("Pitch: %.2f deg  Roll: %.2f deg\n", lsm303agr_pitch_angle(acc), lsm303agr_roll_angle(acc));
 
-
   //rotation rate in degress per sec
   printf("Gyroscope (deg/s): x=%.3f y=%.3f z=%.3f\n\n", gyro.x_axis, gyro.y_axis, gyro.z_axis);
+
+  //PID stuff incoming
+  //theta thetadot
+  pid_loop(acc, gyro);
 }
 
-int main(void) {
-  printf("Board started!\n");
-
+void run_IMU(void){
   // Initialize I2C peripheral and driver
   nrf_drv_twi_config_t i2c_config = NRF_DRV_TWI_DEFAULT_CONFIG;
-  // WARNING!!
-  // These are NOT the correct pins for external I2C communication.
-  // If you are using QWIIC or other external I2C devices, the are
-  // connected to EDGE_P19 (a.k.a. I2C_QWIIC_SCL) and EDGE_P20 (a.k.a. I2C_QWIIC_SDA)
+
+  // For external I2C communication (QUIIC):
+  // EDGE_P19 (a.k.a. I2C_QWIIC_SCL) and EDGE_P20 (a.k.a. I2C_QWIIC_SDA)
   i2c_config.scl = EDGE_P19;
   i2c_config.sda = EDGE_P20;
   i2c_config.frequency = NRF_DRV_TWI_FREQ_100K;
@@ -50,8 +50,14 @@ int main(void) {
 
   // Initialize the LSM303AGR accelerometer sensor
   lsm303agr_init(&twi_mngr_instance);
+}
 
-  //TODO: implement me!
+// Read IMU -> Compute the angle -> Run PID -> motor_set()
+
+int main(void) {
+  printf("Board started!\n");
+  run_IMU();
+
   app_timer_init();
   app_timer_create(&acc_timer, APP_TIMER_MODE_REPEATED, acc_timer_callback);
   app_timer_start(acc_timer, 32768, NULL);
