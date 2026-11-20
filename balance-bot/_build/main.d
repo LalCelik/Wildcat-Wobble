@@ -69,4 +69,7 @@ _build/main.o: main.c /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdbool.h \
  ../../../software/nrf52x-base//sdk/nrf5_sdk_16.0.0/modules/nrfx/hal/nrf_gpio.h \
  driver/imu.h \
  ../../../software/nrf52x-base//sdk/nrf5_sdk_16.0.0/components/libraries/timer/app_timer.h \
- ../../../software/nrf52x-base//sdk/nrf5_sdk_16.0.0/components/libraries/util/app_error.h
+ ../../../software/nrf52x-base//sdk/nrf5_sdk_16.0.0/components/libraries/util/app_error.h \
+ estimation/pid.h driver/motor.h \
+ ../../../software/nrf52x-base//sdk/nrf5_sdk_16.0.0/modules/nrfx/drivers/include/nrfx_pwm.h \
+ ../../../software/nrf52x-base//sdk/nrf5_sdk_16.0.0/modules/nrfx/hal/nrf_pwm.h

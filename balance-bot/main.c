@@ -13,7 +13,10 @@
 #include "microbit_v2.h"
 #include "imu.h"
 #include "app_timer.h"
-#include "pid.c"
+#include "pid.h"
+#include "motor.h"
+
+#define UMAX 1
 
 // Global variables
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 1, 0);
@@ -33,7 +36,8 @@ static void acc_timer_callback(void* _unused) {
 
   //PID stuff incoming
   //theta thetadot
-  pid_loop(acc, gyro);
+  float u = pid_loop(tilt, gyro.x_axis);
+  set_motor(u, UMAX);
 }
 
 void run_IMU(void){
@@ -57,10 +61,13 @@ void run_IMU(void){
 int main(void) {
   printf("Board started!\n");
   run_IMU();
+  motor_init();
 
   app_timer_init();
   app_timer_create(&acc_timer, APP_TIMER_MODE_REPEATED, acc_timer_callback);
-  app_timer_start(acc_timer, 32768, NULL);
+
+  //runs every 5 milliseconds
+  app_timer_start(acc_timer, APP_TIMER_TICKS(5), NULL);
 
   // Loop forever
   while (1) {
