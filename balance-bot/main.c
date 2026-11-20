@@ -40,11 +40,11 @@ static void acc_timer_callback(void* _unused) {
   printf("u value: u=%.3f \n\n", u);
 
   // only start tilting when we pick up robot
-  if(fabs(titl - 90.0f) > 40.0f) {
+  if(fabs(tilt - 90.0f) > 40.0f) {
     u = 0;
   }
-  set_motor(u, UMAX);
 
+  set_motor(u, UMAX);
 }
 
 void run_IMU(void){
