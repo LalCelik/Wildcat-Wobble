@@ -125,9 +125,15 @@
         //start with less just in case
         float duty_cycle = fminf(ratio, 0.4f); // can't be less than 1
 
+        printf("duty cycle: %.3f \n\n", duty_cycle);
+
+
         // convert duty cycle into computer comp value
         // high 60% of the time -> 60% of PWM counter ticks
         float comp = pwm_config.top_value * duty_cycle;
+
+        printf("comp: %.3f \n\n", comp);
+
 
         // forwards or backwards motion:
         slow_decay(u, comp);

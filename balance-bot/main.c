@@ -27,23 +27,26 @@ static void acc_timer_callback(void* _unused) {
   lsm303agr_measurement_t gyro = lsm303agr_read_gyroscope();
   float tilt = lsm303agr_tilt_angle(acc);
 
-  // printf("Acceleration (g): x=%.3f y=%.3f z=%.3f\n", acc.x_axis, acc.y_axis, acc.z_axis);
-  // printf("Tilt angle (phi): %.2f deg\n", tilt);
-  // printf("Pitch: %.2f deg  Roll: %.2f deg\n", lsm303agr_pitch_angle(acc), lsm303agr_roll_angle(acc));
+  printf("Acceleration (g): x=%.3f y=%.3f z=%.3f\n", acc.x_axis, acc.y_axis, acc.z_axis);
+  printf("Tilt angle (phi): %.2f deg\n", tilt);
+  printf("Pitch: %.2f deg  Roll: %.2f deg\n", lsm303agr_pitch_angle(acc), lsm303agr_roll_angle(acc));
 
-  // //rotation rate in degress per sec
-  // printf("Gyroscope (deg/s): x=%.3f y=%.3f z=%.3f\n\n", gyro.x_axis, gyro.y_axis, gyro.z_axis);
+  //rotation rate in degress per sec
+  printf("Gyroscope (deg/s): x=%.3f y=%.3f z=%.3f\n\n", gyro.x_axis, gyro.y_axis, gyro.z_axis);
 
   //PID stuff incoming
   //theta thetadot
   float u = pid_loop(tilt, gyro.x_axis);
-  // printf("u value: u=%.3f \n\n", u);
+  printf("u value: u=%.3f \n\n", u);
 
   // only start tilting when we pick up robot
-  if(fabs(tilt - 90.0f) > 40.0f) {
-    u = 0;
-  }
-  set_motor(u, UMAX);
+  // if( tilt < 80.0f) {
+  //   u = 0;
+  // }
+
+  //testing motor
+  // set_motor(0.5f, 1.0f);
+  // set_motor(u, UMAX);
 }
 
 void run_IMU(void){
