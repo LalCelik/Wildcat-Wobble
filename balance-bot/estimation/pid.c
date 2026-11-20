@@ -8,7 +8,6 @@
 // goal theta (we want it at 90 degrees)
 #define theta_goal 90.0f
 
-
 float pid_loop(float theta, float thetadot) {
     //when robot is laying flat do not make motors spin at full speed
     float err = theta_goal - theta;
