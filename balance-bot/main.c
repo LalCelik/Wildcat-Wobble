@@ -16,7 +16,8 @@
 #include "pid.h"
 #include "motor.h"
 
-#define UMAX 1
+// #define UMAX 20
+#define UMAX 20
 
 // Global variables
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 1, 0);
@@ -46,7 +47,11 @@ static void acc_timer_callback(void* _unused) {
   printf("u value: u=%.3f \n\n", u);
 
   // only start tilting when we pick up robot
-  if( tilt < 20.0f) {
+  // if(fabsf(pitch) > 20.0f) {
+  //   u = 0;
+  // }
+
+  if(tilt > 20.0f) {
     u = 0;
   }
 
