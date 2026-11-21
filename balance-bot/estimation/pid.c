@@ -2,12 +2,21 @@
 
 #include "pid.h"
 
-#define Kp 1.2f
-#define Kd 0.15f //damping
+//Original
+// Kp =1.2
+// Kd = .15
+
+
+//Pretty Good
+//1.5
+//.20
+
+#define Kp 4.0f
+#define Kd 0.5f //damping
 
 // goal theta (we want it at 90 degrees)
 // #define theta_goal 0.0f
-#define theta_goal (-3.55f)
+#define theta_goal (-1.3f)
 
 
 float pid_loop(float theta, float thetadot) {

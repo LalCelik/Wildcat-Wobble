@@ -66,7 +66,9 @@ static void acc_timer_callback(void* _unused) {
   }
   theta = 0.98f * (theta - gyro.y_axis * 0.005f) + 0.02f * pitch;
 
-  float u = pid_loop(theta, -gyro.y_axis);
+  static float u_avg = 0.0f;
+  // float u = pid_loop(theta, -gyro.y_axis);
+  float u = pid_loop(theta - 0.1f * u_avg, -gyro.y_axis);
 
   // printf("u value: u=%.3f \n\n", u);
 
@@ -86,6 +88,7 @@ static void acc_timer_callback(void* _unused) {
 
   //testing motor
   // set_motor(0.5f, 1.0f);
+  u_avg = 0.99f * u_avg + 0.01f * u;
   set_motor(u, UMAX);
   log_sample(theta, pitch, gyro, u);
 }
