@@ -1,6 +1,7 @@
 // Motor driver PWM and direction to spin the wheels
 
 #include "motor.h"
+#include "nrf_delay.h"
 
 #define AIN1 EDGE_P15
 #define AIN2 EDGE_P16
@@ -56,11 +57,17 @@
 
     static void slow_decay(float u, uint16_t comp) {
         // forwards or backwards motion:
-        if (u > 0) {
+        printf("u VALUUUEEE: u=%.3f \n\n", u);
+
+        if (u > 0.0f) {
+            printf("im going frwd");
+
             // forwards
             //store counter value in pwm sequence
-            sequence_data[0].channel_0 = 0; // AIN1
-            sequence_data[0].channel_1 = (uint16_t)comp;  //AIN2
+            sequence_data[0].channel_0 = (uint16_t)comp;
+            sequence_data[0].channel_1 = 0;
+            // sequence_data[0].channel_0 = 0; // AIN1
+            // sequence_data[0].channel_1 = (uint16_t)comp;  //AIN2
             sequence_data[0].channel_2 = 0; //BIN1
             sequence_data[0].channel_3 = (uint16_t)comp;  //BIN2
         } else if (u == 0) {
@@ -71,8 +78,11 @@
             sequence_data[0].channel_3 = 0 | (1<<15);
         } else {
             // backwards
-            sequence_data[0].channel_0 = (uint16_t)comp;
-            sequence_data[0].channel_1 = 0;
+            printf("im going back");
+            sequence_data[0].channel_0 = 0; // AIN1
+            sequence_data[0].channel_1 = (uint16_t)comp;  //AIN2
+            // sequence_data[0].channel_0 = (uint16_t)comp;
+            // sequence_data[0].channel_1 = 0;
             sequence_data[0].channel_2 = (uint16_t)comp;
             sequence_data[0].channel_3 = 0;
         }
@@ -123,7 +133,7 @@
 
         //1.0 is full motor voltage
         //start with less just in case
-        float duty_cycle = fminf(ratio, 0.4f); // can't be less than 1
+        float duty_cycle = fminf(ratio, 1.0f); // can't be less than 1
 
         printf("duty cycle: %.3f \n\n", duty_cycle);
 

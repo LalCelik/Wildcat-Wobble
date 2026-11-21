@@ -56,4 +56,5 @@ _build/motor.o: driver/motor.c driver/motor.h /usr/include/newlib/math.h \
  ../../../software/nrf52x-base//sdk/nrf5_sdk_16.0.0/modules/nrfx/drivers/nrfx_errors.h \
  ../../../software/nrf52x-base//sdk/nrf5_sdk_16.0.0/modules/nrfx/drivers/include/nrfx_pwm.h \
  ../../../software/nrf52x-base//sdk/nrf5_sdk_16.0.0/modules/nrfx/hal/nrf_pwm.h \
- /home/lal-celikbilek7/Github/nu-microbit-base/software/boards/microbit_v2/./microbit_v2.h
+ /home/lal-celikbilek7/Github/nu-microbit-base/software/boards/microbit_v2/./microbit_v2.h \
+ ../../../software/nrf52x-base//sdk/nrf5_sdk_16.0.0/components/libraries/delay/nrf_delay.h

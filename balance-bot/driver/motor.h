@@ -8,3 +8,4 @@
 
 void motor_init(void);
 void set_motor(float u, float u_max);
+void spin_angle(float angle_deg, float speed);

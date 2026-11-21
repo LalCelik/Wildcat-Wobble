@@ -2,7 +2,7 @@
 
 #include "pid.h"
 
-#define Kp 1.0f
+#define Kp 0.5f
 #define Kd 0.0f //damping
 
 // goal theta (we want it at 90 degrees)

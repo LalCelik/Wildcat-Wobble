@@ -188,7 +188,7 @@ float lsm303agr_tilt_angle(lsm303agr_measurement_t acc) {
   return phi_rad * 180.0 / M_PI;
 }
 
-// Pitch: rotation about Y (follows x axis)
+// Pitch: rotation about X (follows x axis)
 float lsm303agr_pitch_angle(lsm303agr_measurement_t acc) {
   return atan2f(acc.x_axis, sqrtf(acc.y_axis*acc.y_axis + acc.z_axis*acc.z_axis)) * 180.0f / M_PI;
 }
