@@ -46,12 +46,7 @@ static void acc_timer_callback(void* _unused) {
 
   printf("u value: u=%.3f \n\n", u);
 
-  // only start tilting when we pick up robot
-  // if(fabsf(pitch) > 20.0f) {
-  //   u = 0;
-  // }
-
-  if(tilt > 20.0f) {
+  if(tilt > 30.0f) {
     u = 0;
   }
 
