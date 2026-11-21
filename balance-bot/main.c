@@ -60,7 +60,7 @@ static void acc_timer_callback(void* _unused) {
   static bool theta_init = false;
   
   if (!theta_init) {
-    // we need to reset the theta in every loop
+    // we need to reset the theta in every lo
     theta = pitch; 
     theta_init = true;
   }
@@ -70,10 +70,18 @@ static void acc_timer_callback(void* _unused) {
 
   // printf("u value: u=%.3f \n\n", u);
 
+  // if (fabsf(theta) > 20.0f) {
+  //   u = 0;
+  //   theta = pitch;
+  // }
+
   if (fabsf(theta) > 20.0f) {
     u = 0;
-    theta = pitch;
+    if (fabsf(pitch) > 20.0f) {
+      theta = pitch;
+    }
   }
+  
   if (fabsf(u) < 1.0f) u = 0;
 
   //testing motor

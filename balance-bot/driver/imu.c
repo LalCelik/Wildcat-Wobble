@@ -111,6 +111,10 @@ void lsm303agr_init(const nrf_twi_mngr_t* i2c) {
   // Configure Gyroscope
   i2c_reg_write(LSM303AGR_GYRO_ADDRESS, CTRL_REG1_G, GYRO_CONFIG_VAL);
 
+  //the MPU's loww-pass filter
+  //filters out the vibration before it affects the pitch and gyro 
+  // i2c_reg_write(LSM303AGR_ACC_ADDRESS, 0x1A, 0x03);
+
   // Read WHO AM I register
   // Always returns the same value if working
   //TODO: read the Accelerometer WHO AM I register and check the result
