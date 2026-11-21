@@ -46,28 +46,24 @@
         // set to 0 to turn off motor driver
         // set to 1 to turn on motor driver
         nrf_gpio_cfg_output(nSLEEP);
-
         nrf_gpio_cfg_output(AIN1);
         nrf_gpio_cfg_output(AIN2);
         nrf_gpio_cfg_output(BIN1);
         nrf_gpio_cfg_output(BIN2);
-
         pwm_init();
     }
 
     static void slow_decay(float u, uint16_t comp) {
         // forwards or backwards motion:
-        printf("u VALUUUEEE: u=%.3f \n\n", u);
+        // printf("u VALUUUEEE: u=%.3f \n\n", u);
 
         if (u > 0.0f) {
-            printf("im going frwd");
+            // printf("im going frwd");
 
             // forwards
             //store counter value in pwm sequence
             sequence_data[0].channel_0 = (uint16_t)comp;
             sequence_data[0].channel_1 = 0;
-            // sequence_data[0].channel_0 = 0; // AIN1
-            // sequence_data[0].channel_1 = (uint16_t)comp;  //AIN2
             sequence_data[0].channel_2 = 0; //BIN1
             sequence_data[0].channel_3 = (uint16_t)comp;  //BIN2
         } else if (u == 0) {
@@ -78,11 +74,9 @@
             sequence_data[0].channel_3 = 0 | (1<<15);
         } else {
             // backwards
-            printf("im going back");
+            // printf("im going back");
             sequence_data[0].channel_0 = 0; // AIN1
             sequence_data[0].channel_1 = (uint16_t)comp;  //AIN2
-            // sequence_data[0].channel_0 = (uint16_t)comp;
-            // sequence_data[0].channel_1 = 0;
             sequence_data[0].channel_2 = (uint16_t)comp;
             sequence_data[0].channel_3 = 0;
         }
@@ -135,14 +129,13 @@
         //start with less just in case
         float duty_cycle = fminf(ratio, 1.0f); // can't be less than 1
 
-        printf("duty cycle: %.3f \n\n", duty_cycle);
-
+        // printf("duty cycle: %.3f \n\n", duty_cycle);
 
         // convert duty cycle into computer comp value
         // high 60% of the time -> 60% of PWM counter ticks
         float comp = pwm_config.top_value * duty_cycle;
 
-        printf("comp: %.3f \n\n", comp);
+        // printf("comp: %.3f \n\n", comp);
 
 
         // forwards or backwards motion:
