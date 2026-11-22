@@ -113,7 +113,7 @@ void lsm303agr_init(const nrf_twi_mngr_t* i2c) {
 
   //the MPU's loww-pass filter
   //filters out the vibration before it affects the pitch and gyro 
-  // i2c_reg_write(LSM303AGR_ACC_ADDRESS, 0x1A, 0x03);
+  i2c_reg_write(LSM303AGR_ACC_ADDRESS, 0x1A, 0x03);
 
   // Read WHO AM I register
   // Always returns the same value if working

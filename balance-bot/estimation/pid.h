@@ -2,4 +2,5 @@
 
 #pragma once
 
-float pid_loop(float theta, float thetadot);
+// float pid_loop(float theta, float thetadot);
+float pid_loop(float theta, float thetadot, float v, float x);

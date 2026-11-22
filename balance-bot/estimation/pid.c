@@ -11,22 +11,41 @@
 //1.5
 //.20
 
-#define Kp 4.0f
-#define Kd 0.5f //damping
+// #define Kp 2.0f
+// #define Kd 0.1f //damping
+// #define Kv -5.0f
+// #define Kx 0.0f
+
+
+#define Kp 2.0f
+#define Kd 0.08f //damping
+#define Kv 2.9f
+#define Kx 2.9f
 
 // goal theta (we want it at 90 degrees)
 // #define theta_goal 0.0f
-#define theta_goal (-1.3f)
+// #define theta_goal (-3.0f)
+#define theta_goal (-1.7f)
 
-
-float pid_loop(float theta, float thetadot) {
+// float pid_loop(float theta, float thetadot) {
+// x is how far the wheels have turned since power-on
+// v is how fast the wheels are rolling (wheel turns per second)
+float pid_loop(float theta, float thetadot, float v, float x) {
     //when robot is laying flat do not make motors spin at full speed
     float err = theta_goal - theta;
     // float u = Kp * err + Kd * thetadot;
-    float u = Kp * err - Kd * thetadot;
+    // float u = Kp * err - Kd * thetadot;
+    float u = Kp * err - Kd * thetadot - Kv * v - Kx * x;
     return u;
 }
 
+// float pid_loop(float theta, float thetadot) {
+//     //when robot is laying flat do not make motors spin at full speed
+//     float err = theta_goal - theta;
+//     // float u = Kp * err + Kd * thetadot;
+//     float u = Kp * err - Kd * thetadot;
+//     return u;
+// }
 
 // #define Kp 1.2f
 // #define Kd 0.15f //damping

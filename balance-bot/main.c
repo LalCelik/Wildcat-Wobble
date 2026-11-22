@@ -15,6 +15,7 @@
 #include "app_timer.h"
 #include "pid.h"
 #include "motor.h"
+#include "encoder.h"
 #include "logger.h"
 
 // #define UMAX 20
@@ -67,8 +68,32 @@ static void acc_timer_callback(void* _unused) {
   theta = 0.98f * (theta - gyro.y_axis * 0.005f) + 0.02f * pitch;
 
   static float u_avg = 0.0f;
+
+  static int dir_count = 0;
+  static int kick_left = 0;
+  static float kick_dir = 0.0f;
+  float kick_shift = 0.0f;
+  if (kick_left > 0) {
+    // kick_shift = kick_dir * 3.0f;
+    kick_shift = kick_dir * 0.0f;
+    kick_left--;
+  }
+
   // float u = pid_loop(theta, -gyro.y_axis);
-  float u = pid_loop(theta - 0.1f * u_avg, -gyro.y_axis);
+
+  //how far wheels turned since they were powered on
+  float x = encoder_position();
+  static float x_prev = 0.0f;
+  static float v = 0.0f;
+  
+  //speed
+  v = 0.8f * v + 0.2f * (x - x_prev) / 0.005f;
+  x_prev = x;
+
+  // float u = pid_loop(theta - kick_shift, -gyro.y_axis);
+  float u = pid_loop(theta - kick_shift, -gyro.y_axis, v, x);
+  // float u = pid_loop(theta - 0.1f * u_avg, -gyro.y_axis);
+
 
   // printf("u value: u=%.3f \n\n", u);
 
@@ -89,8 +114,22 @@ static void acc_timer_callback(void* _unused) {
   //testing motor
   // set_motor(0.5f, 1.0f);
   u_avg = 0.99f * u_avg + 0.01f * u;
+
+  if (u > 0.0f) {
+    dir_count = (dir_count > 0) ? dir_count + 1 : 1;
+  } else if (u < 0.0f) {
+    dir_count = (dir_count < 0) ? dir_count - 1 : -1;
+  } else {
+    dir_count = 0;
+  }
+  if (kick_left == 0 && (dir_count >= 100 || dir_count <= -100)) {
+    kick_dir = (dir_count > 0) ? 1.0f : -1.0f;
+    kick_left = 10;
+    dir_count = 0;
+  }
+
   set_motor(u, UMAX);
-  log_sample(theta, pitch, gyro, u);
+  log_sample(theta, pitch, -gyro.y_axis, x, v, u);
 }
 
 void run_IMU(void){
@@ -117,6 +156,7 @@ int main(void) {
   printf("Board started!\n");
   run_IMU();
   motor_init();
+  encoder_init();
 
 
   app_timer_init();
