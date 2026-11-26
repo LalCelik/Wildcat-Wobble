@@ -83,3 +83,8 @@ void encoder_print_raw(void) {
            (unsigned long)nrf_gpio_pin_read(ENC_LEFT_A), (unsigned long)nrf_gpio_pin_read(ENC_LEFT_B), (long)left_count,
            (unsigned long)nrf_gpio_pin_read(ENC_RIGHT_A), (unsigned long)nrf_gpio_pin_read(ENC_RIGHT_B), (long)right_count);
 }
+
+void encoder_reset(void) {
+    left_count = 0;
+    right_count = 0;
+}

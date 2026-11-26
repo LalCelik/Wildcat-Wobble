@@ -16,8 +16,9 @@
 #include "pid.h"
 #include "motor.h"
 #include "encoder.h"
+// #include "sound.h"
 
-// tilt angle in degrees (filtered), updated every loop; sound.c reads it
+// tilt angle in degrees (filtered)
 float theta = 0.0f;
 
 //#include "logger.h"
@@ -71,6 +72,18 @@ static void acc_timer_callback(void* _unused) {
   float x = encoder_position();
   static float x_prev = 0.0f;
   static float v = 0.0f;
+
+  if (nrf_gpio_pin_read(BTN_A) == 0) {
+    encoder_reset();
+    x = 0.0f;
+    x_prev = 0.0f;
+    v = 0.0f;
+    theta = pitch;
+  }
+
+  if (nrf_gpio_pin_read(BTN_B) == 0) {
+    NVIC_SystemReset();
+  }
   
   //speed
   v = 0.8f * v + 0.2f * (x - x_prev) / 0.005f;
@@ -140,6 +153,8 @@ int main(void) {
   run_IMU();
   motor_init();
   encoder_init();
+  nrf_gpio_cfg_input(BTN_A, NRF_GPIO_PIN_NOPULL);
+  nrf_gpio_cfg_input(BTN_B, NRF_GPIO_PIN_NOPULL);
 
 
   app_timer_init();

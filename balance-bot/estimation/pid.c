@@ -3,15 +3,17 @@
 #include "pid.h"
 
 
+#define Kp 2.5f
+#define Kd 0.12f
+#define Kv -7.0f
+#define Kx -7.0f
+
+//best of new robot
 // #define Kp 2.5f
 // #define Kd 0.12f
 // #define Kv -5.0f
 // #define Kx -5.0f
 
-#define Kp 2.5f
-#define Kd 0.12f
-#define Kv -5.0f
-#define Kx -5.0f
 
 // best?
 // #define Kp 3.0f
