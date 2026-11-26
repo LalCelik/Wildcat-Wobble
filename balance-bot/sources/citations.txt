@@ -1,0 +1,5 @@
+https://learn.sparkfun.com/tutorials/gyroscope/all
+https://www.ti.com/lit/ds/symlink/drv8833.pdf
+
+https://github.com/CoppeliaRobotics/zmqRemoteApi
+
