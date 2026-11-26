@@ -16,13 +16,16 @@
 #include "pid.h"
 #include "motor.h"
 #include "encoder.h"
+// #include "sound.h"
+
+// tilt angle in degrees (filtered)
+float theta = 0.0f;
+
 //#include "logger.h"
 
-// old UMAX 20
-//#define UMAX 20
-// new UMAX 
-#define UMAX 35
-#define FALL_ANGLE 15.0f
+// #define UMAX 20
+
+#define UMAX 34
 
 // Global variables
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 1, 0);
@@ -38,13 +41,12 @@ static void acc_timer_callback(void* _unused) {
 
   float pitch = lsm303agr_pitch_angle(acc);
 
-  printf("Pitch: %.2f deg  Roll: %.2f deg\n", pitch, lsm303agr_roll_angle(acc));
+  // printf("Pitch: %.2f deg  Roll: %.2f deg\n", pitch, lsm303agr_roll_angle(acc));
 
   //rotation rate in degress per sec
-  printf("Gyroscope (deg/s): x=%.3f y=%.3f z=%.3f\n\n", gyro.x_axis, gyro.y_axis, gyro.z_axis);
+  // printf("Gyroscope (deg/s): x=%.3f y=%.3f z=%.3f\n\n", gyro.x_axis, gyro.y_axis, gyro.z_axis);
 
 
-  static float theta = 0.0f;
   static bool theta_init = false;
   
   if (!theta_init) {
@@ -70,25 +72,31 @@ static void acc_timer_callback(void* _unused) {
   float x = encoder_position();
   static float x_prev = 0.0f;
   static float v = 0.0f;
+
+  if (nrf_gpio_pin_read(BTN_A) == 0) {
+    encoder_reset();
+    x = 0.0f;
+    x_prev = 0.0f;
+    v = 0.0f;
+    theta = pitch;
+  }
+
+  if (nrf_gpio_pin_read(BTN_B) == 0) {
+    NVIC_SystemReset();
+  }
   
   //speed
   v = 0.8f * v + 0.2f * (x - x_prev) / 0.005f;
   x_prev = x;
   float u = pid_loop(theta - kick_shift, -gyro.y_axis, v, x);
 
-  if (fabsf(theta) > FALL_ANGLE || fabsf(pitch) > FALL_ANGLE + 10.0f) {
+
+  if (fabsf(theta) > 30.0f) {
     u = 0;
     if (fabsf(pitch) > 30.0f) {
       theta = pitch;
     }
   }
-
-  // if (fabsf(theta) > 30.0f) {
-  //   u = 0;
-  //   if (fabsf(pitch) > 30.0f) {
-  //     theta = pitch;
-  //   }
-  // }
   
   if (fabsf(u) < 1.0f) u = 0;
 
@@ -110,6 +118,15 @@ static void acc_timer_callback(void* _unused) {
   }
 
   set_motor(u, UMAX);
+  // tilt_sound();
+
+  // print 5 times a second instead of every 5 ms loop (printing every loop slows the controller)
+  static int print_count = 0;
+  if (++print_count >= 40) {
+    print_count = 0;
+    printf("theta=%.2f pitch=%.2f gyro_y=%.2f x=%.3f v=%.3f u=%.2f\n", theta, pitch, gyro.y_axis, x, v, u);
+    encoder_print_raw(); // DEBUG
+  }
 }
 
 void run_IMU(void){
@@ -131,12 +148,13 @@ void run_IMU(void){
 
 
 // Read IMU -> Compute the angle -> Run PID -> motor_set()
-
 int main(void) {
   printf("Board started!\n");
   run_IMU();
   motor_init();
   encoder_init();
+  nrf_gpio_cfg_input(BTN_A, NRF_GPIO_PIN_NOPULL);
+  nrf_gpio_cfg_input(BTN_B, NRF_GPIO_PIN_NOPULL);
 
 
   app_timer_init();
