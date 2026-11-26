@@ -3,6 +3,13 @@
 #include "motor.h"
 #include "nrf_delay.h"
 
+// #define AIN1 EDGE_P13
+// #define AIN2 EDGE_P14
+
+// #define BIN1 EDGE_P15
+// #define BIN2 EDGE_P16
+
+//Orig.
 #define AIN1 EDGE_P15
 #define AIN2 EDGE_P16
 

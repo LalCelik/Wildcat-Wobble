@@ -18,8 +18,11 @@
 #include "encoder.h"
 //#include "logger.h"
 
-// #define UMAX 20
-#define UMAX 20
+// old UMAX 20
+//#define UMAX 20
+// new UMAX 
+#define UMAX 35
+#define FALL_ANGLE 15.0f
 
 // Global variables
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 1, 0);
@@ -73,13 +76,19 @@ static void acc_timer_callback(void* _unused) {
   x_prev = x;
   float u = pid_loop(theta - kick_shift, -gyro.y_axis, v, x);
 
-
-  if (fabsf(theta) > 20.0f) {
+  if (fabsf(theta) > FALL_ANGLE || fabsf(pitch) > FALL_ANGLE + 10.0f) {
     u = 0;
-    if (fabsf(pitch) > 20.0f) {
+    if (fabsf(pitch) > 30.0f) {
       theta = pitch;
     }
   }
+
+  // if (fabsf(theta) > 30.0f) {
+  //   u = 0;
+  //   if (fabsf(pitch) > 30.0f) {
+  //     theta = pitch;
+  //   }
+  // }
   
   if (fabsf(u) < 1.0f) u = 0;
 

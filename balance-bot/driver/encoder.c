@@ -21,7 +21,11 @@
 // 6 counts per motor turn * 51.45 gear ratio
 // gear box turns 51.45 for 1 wheel turn (from datasheet)
 // 12 / 2 
-#define COUNTS_PER_REV 308.7f
+
+// Old motors
+//#define COUNTS_PER_REV 308.7f
+// New motors?
+#define COUNTS_PER_REV 179.2f
 
 // hwo far the wheels have tuned in steps
 static volatile int32_t left_count = 0;

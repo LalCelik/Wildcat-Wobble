@@ -27,12 +27,18 @@
 #define Kv -4.0f
 #define Kx -4.0f
 
+// best?
+// #define Kp 3.0f
+// #define Kd 0.12f
+// #define Kv -4.0f
+// #define Kx -4.0f
+
 
 // goal theta (we want it at 90 degrees)
 // #define theta_goal 0.0f
 // #define theta_goal (-3.0f)
 // neg is towards not screen side
-#define theta_goal (-3.98f)
+#define theta_goal (0.0f)
 
 // float pid_loop(float theta, float thetadot) {
 // x is how far the wheels have turned since power-on
