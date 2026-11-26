@@ -9,8 +9,6 @@
 #define BIN1 EDGE_P13
 #define BIN2 EDGE_P14
 
-#define nSLEEP EDGE_P8
-
         static const nrfx_pwm_t PWM_INST = NRFX_PWM_INSTANCE(0);
 
         // Holds duty cycle values to trigger PWM toggle
@@ -42,10 +40,6 @@
     void motor_init(void) {
         // initialize motor pins
 
-        // SLEEP
-        // set to 0 to turn off motor driver
-        // set to 1 to turn on motor driver
-        nrf_gpio_cfg_output(nSLEEP);
         nrf_gpio_cfg_output(AIN1);
         nrf_gpio_cfg_output(AIN2);
         nrf_gpio_cfg_output(BIN1);
@@ -118,7 +112,6 @@
     void set_motor(float u, float u_max) {
 
         nrfx_pwm_stop(&PWM_INST, true);
-        nrf_gpio_pin_write(nSLEEP, 1);
 
         // find duty cycle
         // what percent of the duty cycle the u represents

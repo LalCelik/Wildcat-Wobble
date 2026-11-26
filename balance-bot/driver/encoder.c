@@ -8,11 +8,19 @@
 #define ENC_RIGHT_A EDGE_P2
 #define ENC_RIGHT_B EDGE_P8
 
+// #define ENC_LEFT_A  EDGE_P1
+// #define ENC_LEFT_B  EDGE_P2
+// #define ENC_RIGHT_A EDGE_P3
+// #define ENC_RIGHT_B EDGE_P9
+
 // direction the wheels are turning
 // had to flip one
 #define ENC_LEFT_DIR  1
 #define ENC_RIGHT_DIR -1
 
+// 6 counts per motor turn * 51.45 gear ratio
+// gear box turns 51.45 for 1 wheel turn (from datasheet)
+// 12 / 2 
 #define COUNTS_PER_REV 308.7f
 
 // hwo far the wheels have tuned in steps

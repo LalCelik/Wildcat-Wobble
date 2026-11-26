@@ -36,10 +36,10 @@ static void acc_timer_callback(void* _unused) {
 
   float pitch = lsm303agr_pitch_angle(acc);
 
-  // printf("Pitch: %.2f deg  Roll: %.2f deg\n", pitch, lsm303agr_roll_angle(acc));
+  printf("Pitch: %.2f deg  Roll: %.2f deg\n", pitch, lsm303agr_roll_angle(acc));
 
   //rotation rate in degress per sec
-  // printf("Gyroscope (deg/s): x=%.3f y=%.3f z=%.3f\n\n", gyro.x_axis, gyro.y_axis, gyro.z_axis);
+  printf("Gyroscope (deg/s): x=%.3f y=%.3f z=%.3f\n\n", gyro.x_axis, gyro.y_axis, gyro.z_axis);
 
   //PID stuff incoming
   //theta thetadot
