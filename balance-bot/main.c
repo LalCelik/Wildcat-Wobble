@@ -16,7 +16,7 @@
 #include "pid.h"
 #include "motor.h"
 #include "encoder.h"
-#include "logger.h"
+//#include "logger.h"
 
 // #define UMAX 20
 #define UMAX 20
@@ -28,7 +28,6 @@ APP_TIMER_DEF(acc_timer);
 static void acc_timer_callback(void* _unused) {
   lsm303agr_measurement_t acc = lsm303agr_read_accelerometer();
   lsm303agr_measurement_t gyro = lsm303agr_read_gyroscope();
-  float tilt = lsm303agr_tilt_angle(acc);
 
   // printf("Acceleration (g): x=%.3f y=%.3f z=%.3f\n", acc.x_axis, acc.y_axis, acc.z_axis);
 
@@ -41,21 +40,6 @@ static void acc_timer_callback(void* _unused) {
   //rotation rate in degress per sec
   printf("Gyroscope (deg/s): x=%.3f y=%.3f z=%.3f\n\n", gyro.x_axis, gyro.y_axis, gyro.z_axis);
 
-  //PID stuff incoming
-  //theta thetadot
-  // float u = pid_loop(tilt, gyro.x_axis);
-
-  // static float pitch_f = 0.0f;
-  // pitch_f = 0.8f * pitch_f + 0.2f * pitch;
-  // float u = pid_loop(pitch_f, gyro.x_axis);
-
-  // static float theta = 0.0f;
-  // static bool theta_init = false;
-
-  // if (!theta_init) { theta = pitch; theta_init = true; }
-  // theta = 0.98f * (theta - gyro.x_axis * 0.005f) + 0.02f * pitch;
-
-  // float u = pid_loop(theta, gyro.x_axis);
 
   static float theta = 0.0f;
   static bool theta_init = false;
@@ -79,8 +63,6 @@ static void acc_timer_callback(void* _unused) {
     kick_left--;
   }
 
-  // float u = pid_loop(theta, -gyro.y_axis);
-
   //how far wheels turned since they were powered on
   float x = encoder_position();
   static float x_prev = 0.0f;
@@ -89,18 +71,8 @@ static void acc_timer_callback(void* _unused) {
   //speed
   v = 0.8f * v + 0.2f * (x - x_prev) / 0.005f;
   x_prev = x;
-
-  // float u = pid_loop(theta - kick_shift, -gyro.y_axis);
   float u = pid_loop(theta - kick_shift, -gyro.y_axis, v, x);
-  // float u = pid_loop(theta - 0.1f * u_avg, -gyro.y_axis);
 
-
-  // printf("u value: u=%.3f \n\n", u);
-
-  // if (fabsf(theta) > 20.0f) {
-  //   u = 0;
-  //   theta = pitch;
-  // }
 
   if (fabsf(theta) > 20.0f) {
     u = 0;
@@ -129,7 +101,6 @@ static void acc_timer_callback(void* _unused) {
   }
 
   set_motor(u, UMAX);
-  log_sample(theta, pitch, -gyro.y_axis, x, v, u);
 }
 
 void run_IMU(void){
