@@ -51,7 +51,7 @@
         // forwards or backwards motion:
         // printf("u VALUUUEEE: u=%.3f \n\n", u);
 
-        if (u > 0.0f) {
+        if (u < 0.0f) { // flipped for new motors (was u > 0)
             // printf("im going frwd");
 
             // forwards

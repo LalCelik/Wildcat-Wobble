@@ -6,3 +6,10 @@ _build/
 balance.py
 setup_scene.py
 simulation_coppelia/
+sources/
+sound/midi_to_notes.py
+sound/song.h
+sound/sound.c
+
+
+
