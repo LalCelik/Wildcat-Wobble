@@ -16,6 +16,7 @@
 #include "pid.h"
 #include "motor.h"
 #include "encoder.h"
+#include "light.h"
 // #include "sound.h"
 
 // tilt angle in degrees (filtered)
@@ -30,6 +31,12 @@ float theta = 0.0f;
 // Global variables
 NRF_TWI_MNGR_DEF(twi_mngr_instance, 1, 0);
 APP_TIMER_DEF(acc_timer);
+APP_TIMER_DEF(light_timer);
+
+static void light_timer_callback(void* _unused) {
+  float lux = light_read_lux();
+  printf("Light: %.2f lux\n", lux);
+}
 
 static void acc_timer_callback(void* _unused) {
   lsm303agr_measurement_t acc = lsm303agr_read_accelerometer();
@@ -54,6 +61,8 @@ static void acc_timer_callback(void* _unused) {
     theta = pitch; 
     theta_init = true;
   }
+
+  
   theta = 0.98f * (theta - gyro.y_axis * 0.005f) + 0.02f * pitch;
 
   static float u_avg = 0.0f;
@@ -151,6 +160,7 @@ void run_IMU(void){
 int main(void) {
   printf("Board started!\n");
   run_IMU();
+  light_init(&twi_mngr_instance);
   motor_init();
   encoder_init();
   nrf_gpio_cfg_input(BTN_A, NRF_GPIO_PIN_NOPULL);
@@ -159,9 +169,11 @@ int main(void) {
 
   app_timer_init();
   app_timer_create(&acc_timer, APP_TIMER_MODE_REPEATED, acc_timer_callback);
+  app_timer_create(&light_timer, APP_TIMER_MODE_REPEATED, light_timer_callback);
 
   //100 times a second
   app_timer_start(acc_timer, APP_TIMER_TICKS(5), NULL);
+  app_timer_start(light_timer, APP_TIMER_TICKS(500), NULL);
 
   // Loop forever
   while (1) {

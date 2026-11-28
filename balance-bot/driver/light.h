@@ -11,4 +11,4 @@ static const uint8_t BH1750_ADDRESS = 0x23;
 void light_init(const nrf_twi_mngr_t* i2c);
 
 // Read light function
-float light_read_light(void);
+float light_read_lux(void);

@@ -31,12 +31,38 @@ static void i2c_cmd_write(uint8_t i2c_addr, uint8_t cmd) {
 }
 
 // i2c - pointer to already initialized and enabled twim instance
-void lsm303agr_init(const nrf_twi_mngr_t* i2c) {
+void light_init(const nrf_twi_mngr_t* i2c) {
   i2c_manager = i2c;
 
   // Power on Light Sensor
-  i2c_cmd_write(BH1750_LIGHT_ADDRESS, 0x01);
+  i2c_cmd_write(BH1750_ADDRESS, 0x01);
   nrf_delay_ms(100);
 
   // Continuously High Resolution Mode
-  i2c_cmd_write(LSM303AGR_LIGHT_ADDRESS, 0x10);
+  i2c_cmd_write(BH1750_ADDRESS, 0x10);
+}
+
+// Read light function
+static uint16_t i2c_light_read(uint8_t i2c_addr){
+  //create array of two 8 bit integers initailly set to zero
+  uint8_t rx_buf[2] = {0};
+  nrf_twi_mngr_transfer_t const read_transfer[] = {
+    
+    NRF_TWI_MNGR_READ(i2c_addr, rx_buf, 2, 0),
+  };
+  ret_code_t result = nrf_twi_mngr_perform(i2c_manager, NULL, read_transfer, 1, NULL);
+  if (result != NRF_SUCCESS) {
+    printf("LIGHT I2C transaction failed! Error: %lX\n", result);
+  }
+  
+  // Combine the two 8 bits into one 16 bit integer
+  return ((uint16_t)rx_buf[0] << 8) | rx_buf[1];
+}
+
+// Convert raw 16 bit to lux
+float light_read_lux(void){
+  uint16_t raw_result = i2c_light_read(BH1750_ADDRESS);
+  float result = raw_result / 1.2f;
+  printf("Light (lx): %f\n", result);
+  return result;
+}
